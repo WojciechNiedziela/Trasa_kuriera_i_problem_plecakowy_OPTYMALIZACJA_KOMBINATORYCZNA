@@ -79,7 +79,7 @@ void classHandlingEvents::addPackage(std::vector<Paczka> &paczki) {
     std::cin >> x >> y;
 
     if (!std::cin.fail()) {
-        paczki.emplace_back(id, adres, waga, x, y);
+        paczki.emplace_back(id, waga, x, y);
         std::cout << "Paczka dodana pomyslnie.\n";
     } else {
         std::cout << "Blad wprowadzania danych. Sprobuj ponownie.\n";
@@ -97,7 +97,7 @@ void classHandlingEvents::displayPackages(const std::vector<Paczka> &paczki) {
     std::cout << "\n--- Lista Paczek ---\n";
     for (const auto &paczka : paczki) {
         std::cout << "ID: " << paczka.getId()
-                  << ", Adres: " << paczka.getAdres()
+                  //<< ", Adres: " << paczka.getAdres()
                   << ", Waga: " << paczka.getWaga()
                   << ", Wspolrzedne: (" << paczka.getX() << ", " << paczka.getY() << ")\n";
     }
@@ -131,7 +131,7 @@ void classHandlingEvents::displayRoutes(std::vector<Paczka> &paczki, Magazyn &ma
     for (const auto &paczka : route) {
         double distance = calculateDistance(prevX, prevY, paczka.getX(), paczka.getY());
         std::cout << "Dostawa ID: " << paczka.getId()
-                  << ", Adres: " << paczka.getAdres()
+                  //<< ", Adres: " << paczka.getAdres()
                   << ", Dystans: " << std::fixed << std::setprecision(2) << distance << "\n";
         totalDistance += distance;
         prevX = paczka.getX();

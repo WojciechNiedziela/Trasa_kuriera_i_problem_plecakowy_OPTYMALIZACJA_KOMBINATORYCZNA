@@ -82,7 +82,7 @@ void classDrawMap::addPackageTerminal(std::vector<Paczka> &paczki) {
         return;
     }
 
-    paczki.emplace_back(id, "", 0.0, x, y);
+    paczki.emplace_back(id, 0.0, x, y);
     std::cout << "Dodano paczkę o ID " << id << " na współrzędnych (" << x << ", " << y << ").\n";
 }
 
