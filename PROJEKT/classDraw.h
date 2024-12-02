@@ -19,6 +19,12 @@ public:
     // Metoda do wprowadzania współrzędnych magazynu
     //void MagazynInput(double &magazynX, double &magazynY);
 
+    // Funkcja do ustawienia liczby kurierów
+    void SetCouriers(std::vector<Kurier> &kurierzy);
+
+    // Funkcja do wyświetlenia szczegółów kurierów
+    void DisplayCouriers(const std::vector<Kurier> &kurierzy);
+
     void LoadPackagesFromFile(std::vector<Paczka>& paczki, const std::string& fileName);
 
 
@@ -37,6 +43,7 @@ public:
 private:
     // Metoda do obliczania dystansu między punktami
     double calculateDistance(double x1, double y1, double x2, double y2);
+    std::vector<Kurier> kurierzy; // Lista kurierów
 };
 
 #endif // CLASS_DRAW_H

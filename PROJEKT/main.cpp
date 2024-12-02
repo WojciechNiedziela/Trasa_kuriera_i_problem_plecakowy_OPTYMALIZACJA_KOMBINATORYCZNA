@@ -27,7 +27,7 @@ int main()
     Magazyn magazyn("Warszawa, ul. Przykladowa 1", magazynX, magazynY);
 
     // Inicjalizacja kuriera
-    Kurier kurier(1, "Jan", "Kowalski", "samochód dostawczy", &magazyn, 100.0);
+    Kurier kurier(1, 100.0);
 
     // Kontener na paczki
     std::vector<Paczka> paczki;

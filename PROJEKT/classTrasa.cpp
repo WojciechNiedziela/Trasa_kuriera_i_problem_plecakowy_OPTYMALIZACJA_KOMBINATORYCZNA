@@ -55,22 +55,6 @@ vector<Paczka> Trasa::rozwiazProblemPlecakowy(const vector<Paczka>& dostepnePacz
 }
 
 
-// Oblicz długość trasy
-double Trasa::obliczDlugoscTrasy(const vector<Paczka>& trasa) const {
-    double dlugosc = 0.0;
-    double x = magazyn->getX();
-    double y = magazyn->getY();
-
-    for (const auto& paczka : trasa) {
-        dlugosc += mapa->odleglosc(x, y, paczka.getX(), paczka.getY());
-        x = paczka.getX();
-        y = paczka.getY();
-    }
-
-    dlugosc += mapa->odleglosc(x, y, magazyn->getX(), magazyn->getY());
-    return dlugosc;
-}
-
 vector<Paczka> Trasa::znajdzTraseAlgorytmZachlanny() {
     vector<Paczka> wynikowaTrasa;                 // Wynikowy wektor paczek w trasie
     vector<Paczka> paczkiDoDostarczenia = paczki; // Kopia paczek do dostarczenia
@@ -106,6 +90,60 @@ vector<Paczka> Trasa::znajdzTraseAlgorytmZachlanny() {
     return wynikowaTrasa; // Zwróć jedną trasę uwzględniającą wszystkie paczki
 }
 
+
+// Oblicz długość trasy
+double Trasa::obliczDlugoscTrasy(const vector<Paczka>& trasa) const {
+    double dlugosc = 0.0;
+    double x = magazyn->getX();
+    double y = magazyn->getY();
+
+    for (const auto& paczka : trasa) {
+        dlugosc += mapa->odleglosc(x, y, paczka.getX(), paczka.getY());
+        x = paczka.getX();
+        y = paczka.getY();
+    }
+
+    dlugosc += mapa->odleglosc(x, y, magazyn->getX(), magazyn->getY());
+    return dlugosc;
+}
+
+// Funkcja krzyżowania tras (jednolite krzyżowanie)
+vector<Paczka> Trasa::krzyzowanie(const vector<Paczka>& rodzic1, const vector<Paczka>& rodzic2) {
+    vector<Paczka> dziecko = rodzic1;
+    size_t n = rodzic1.size();
+
+    random_device rd;
+    mt19937 generator(rd());
+    uniform_int_distribution<size_t> dist(0, n - 1);
+
+    for (size_t i = 0; i < n; ++i) {
+        if (dist(generator) % 2 == 0 && find(dziecko.begin(), dziecko.end(), rodzic2[i]) == dziecko.end()) {
+            dziecko[i] = rodzic2[i];
+        }
+    }
+
+    return dziecko;
+}
+
+// Funkcja mutacji (zamiana dwóch paczek)
+void Trasa::mutacja(vector<Paczka>& trasa) {
+    size_t n = trasa.size();
+
+    if (n < 2) return; // Brak wystarczającej liczby elementów do mutacji
+
+    random_device rd;
+    mt19937 generator(rd());
+    uniform_int_distribution<size_t> dist(0, n - 1);
+
+    size_t i = dist(generator);
+    size_t j = dist(generator);
+
+    while(i == j) {
+        j = dist(generator); // Zapewnij, że indeksy są różne
+    }
+
+    swap(trasa[i], trasa[j]);
+}
 
 
 // Algorytm genetyczny z uwzględnieniem ładowności
@@ -247,40 +285,3 @@ void Trasa::displayTrasy(const vector<vector<Paczka>>& trasy) {
     }
 }
 
-// Funkcja krzyżowania tras (jednolite krzyżowanie)
-vector<Paczka> Trasa::krzyzowanie(const vector<Paczka>& rodzic1, const vector<Paczka>& rodzic2) {
-    vector<Paczka> dziecko = rodzic1;
-    size_t n = rodzic1.size();
-
-    random_device rd;
-    mt19937 generator(rd());
-    uniform_int_distribution<size_t> dist(0, n - 1);
-
-    for (size_t i = 0; i < n; ++i) {
-        if (dist(generator) % 2 == 0 && find(dziecko.begin(), dziecko.end(), rodzic2[i]) == dziecko.end()) {
-            dziecko[i] = rodzic2[i];
-        }
-    }
-
-    return dziecko;
-}
-
-// Funkcja mutacji (zamiana dwóch paczek)
-void Trasa::mutacja(vector<Paczka>& trasa) {
-    size_t n = trasa.size();
-
-    if (n < 2) return; // Brak wystarczającej liczby elementów do mutacji
-
-    random_device rd;
-    mt19937 generator(rd());
-    uniform_int_distribution<size_t> dist(0, n - 1);
-
-    size_t i = dist(generator);
-    size_t j = dist(generator);
-
-    while(i == j) {
-        j = dist(generator); // Zapewnij, że indeksy są różne
-    }
-
-    swap(trasa[i], trasa[j]);
-}
