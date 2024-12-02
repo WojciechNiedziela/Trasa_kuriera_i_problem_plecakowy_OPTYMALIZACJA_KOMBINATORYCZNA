@@ -23,16 +23,11 @@ int main()
     
     classDraw classDraw;
 
-    classDraw.MagazynInput(magazynX, magazynY);
-
-    // Jeśli okno zostało zamknięte, kontynuuj do głównego programu
-    sf::RenderWindow window(sf::VideoMode(800, 800), "Trasa kuriera");
-
     // Inicjalizacja magazynu z wprowadzonymi współrzędnymi
     Magazyn magazyn("Warszawa, ul. Przykladowa 1", magazynX, magazynY);
 
     // Inicjalizacja kuriera
-    Kurier kurier(1, "Jan", "Kowalski", "samochód dostawczy", &magazyn, 50.0);
+    Kurier kurier(1, "Jan", "Kowalski", "samochód dostawczy", &magazyn, 100.0);
 
     // Kontener na paczki
     std::vector<Paczka> paczki;

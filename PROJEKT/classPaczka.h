@@ -16,6 +16,10 @@ public:
     // Konstruktor
     Paczka(int id, double waga, double x, double y);
 
+    bool operator==(const Paczka& other) const {
+        return id_paczki == other.id_paczki && waga == other.waga && x == other.x && y == other.y;
+}
+
     // Gettery
     int getId() const;
     //string getAdres() const;
@@ -23,10 +27,10 @@ public:
     double getX() const;
     double getY() const;
 
-    bool operator==(const Paczka& other) const {
-        // this->id_paczki == other.id_paczki;
-        return id_paczki == other.id_paczki;
-    }
+    // bool operator==(const Paczka& other) const {
+    //     // this->id_paczki == other.id_paczki;
+    //     return id_paczki == other.id_paczki;
+    // }
     
     // Metoda do wyświetlania informacji o paczce
     void display() const;

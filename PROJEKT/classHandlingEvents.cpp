@@ -114,11 +114,11 @@ void classHandlingEvents::displayRoutes(std::vector<Paczka> &paczki, Magazyn &ma
     std::vector<Paczka> route;
 
     if (algorithm == "genetyczny") {
-        route = trasa.znajdzTraseAlgorytmGenetyczny();
+        //route = trasa.znajdzTraseAlgorytmGenetyczny();
     } else if (algorithm == "zachlanny") {
         route = trasa.znajdzTraseAlgorytmZachlanny();
     } else if (algorithm == "wyzarzanie") {
-        route = trasa.znajdzTraseAlgorytmWyzarzania();
+        //route = trasa.znajdzTraseAlgorytmWyzarzania();
     } else {
         std::cout << "Nieznany algorytm: " << algorithm << "\n";
         return;

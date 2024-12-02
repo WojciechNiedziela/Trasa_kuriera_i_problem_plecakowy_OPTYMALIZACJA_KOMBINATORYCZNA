@@ -12,6 +12,8 @@ Paczka::Paczka(int id, double waga, double x, double y) {
     this->y = y;
 }
 
+
+
 // Getter dla ID paczki
 int Paczka::getId() const {
     return this->id_paczki;
