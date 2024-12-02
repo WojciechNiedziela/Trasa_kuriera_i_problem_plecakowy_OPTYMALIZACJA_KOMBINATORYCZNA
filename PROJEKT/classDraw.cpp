@@ -11,6 +11,7 @@
 #include <iomanip>
 #include <cmath>
 #include "classHandlingEvents.h"
+#include <fstream>
 
 classDraw::classDraw() {}
 
@@ -28,27 +29,45 @@ void classDraw::MagazynInput(double &magazynX, double &magazynY) {
     std::cout << "Magazyn ustawiono na wspolrzedne (" << magazynX << ", " << magazynY << ").\n";
 }
 
-void classDraw::MainWindow(std::vector<Paczka> &paczki, Magazyn &magazyn, Kurier &kurier, Mapa &mapa) {
+// Funkcja do wczytywania paczek z pliku
+void classDraw::LoadPackagesFromFile(std::vector<Paczka>& paczki, const std::string& fileName) {
+    std::ifstream file(fileName);
+    if (!file.is_open()) {
+        std::cout << "Nie mozna otworzyc pliku: " << fileName << "\n";
+        return;
+    }
+
+    int id;
+    double waga, x, y;
+    while (file >> id >> waga >> x >> y) {
+        paczki.emplace_back(id, waga, x, y);
+    }
+
+    file.close();
+    std::cout << "Wczytano paczki z pliku: " << fileName << "\n";
+}
+
+// Zaktualizowane menu
+void classDraw::MainWindow(std::vector<Paczka>& paczki, Magazyn& magazyn, Kurier& kurier, Mapa& mapa) {
     classHandlingEvents classHandlingEvents;
     double magazynX = 0.0, magazynY = 0.0;
 
     MagazynInput(magazynX, magazynY);
-    // magazyn.setX(magazynX);
-    // magazyn.setY(magazynY);
 
     int choice;
     while (true) {
         std::cout << "\n--- MENU GLOWNE ---\n";
         std::cout << "1. Dodaj paczke\n";
-        std::cout << "2. Wyswietl paczki\n";
-        std::cout << "3. Wyznacz trasy (algorytm genetyczny)\n";
-        std::cout << "4. Wyznacz trasy (algorytm zachlanny)\n";
-        std::cout << "5. Wyznacz trasy (wyzarzanie)\n";
-        std::cout << "6. Wyjdz\n";
+        std::cout << "2. Wczytaj paczki z pliku\n";
+        std::cout << "3. Wyswietl paczki\n";
+        std::cout << "4. Wyznacz trasy (algorytm genetyczny)\n";
+        std::cout << "5. Wyznacz trasy (algorytm zachlanny)\n";
+        std::cout << "6. Wyznacz trasy (wyzarzanie)\n";
+        std::cout << "7. Wyjdz\n";
         std::cout << "Wybierz opcje: ";
         std::cin >> choice;
 
-        if (std::cin.fail() || choice < 1 || choice > 6) {
+        if (std::cin.fail() || choice < 1 || choice > 7) {
             std::cout << "Blad: podaj poprawny numer opcji.\n";
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -61,22 +80,27 @@ void classDraw::MainWindow(std::vector<Paczka> &paczki, Magazyn &magazyn, Kurier
                 break;
             }
             case 2: {
-                DisplayPackages(paczki);
+                std::string fileName = "paczki.txt";
+                LoadPackagesFromFile(paczki, fileName);
                 break;
             }
             case 3: {
-                DisplayRoutes(paczki, magazyn, kurier, mapa, "genetyczny");
+                DisplayPackages(paczki);
                 break;
             }
             case 4: {
-                DisplayRoutes(paczki, magazyn, kurier, mapa, "zachlanny");
+                DisplayRoutes(paczki, magazyn, kurier, mapa, "genetyczny");
                 break;
             }
             case 5: {
-                DisplayRoutes(paczki, magazyn, kurier, mapa, "wyzarzanie");
+                DisplayRoutes(paczki, magazyn, kurier, mapa, "zachlanny");
                 break;
             }
             case 6: {
+                DisplayRoutes(paczki, magazyn, kurier, mapa, "wyzarzanie");
+                break;
+            }
+            case 7: {
                 std::cout << "Wyjscie z programu.\n";
                 return;
             }

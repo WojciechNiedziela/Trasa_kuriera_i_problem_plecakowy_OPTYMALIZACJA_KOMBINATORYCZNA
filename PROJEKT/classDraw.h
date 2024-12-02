@@ -19,6 +19,9 @@ public:
     // Metoda do wprowadzania współrzędnych magazynu
     void MagazynInput(double &magazynX, double &magazynY);
 
+    void LoadPackagesFromFile(std::vector<Paczka>& paczki, const std::string& fileName);
+
+
     // Główne okno aplikacji
     void MainWindow(std::vector<Paczka> &paczki, Magazyn &magazyn, Kurier &kurier, Mapa &mapa);
 
