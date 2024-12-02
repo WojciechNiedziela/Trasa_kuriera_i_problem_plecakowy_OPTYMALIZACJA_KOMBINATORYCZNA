@@ -181,7 +181,7 @@ void classDraw::DisplayRoutes(std::vector<Paczka> &paczki, Magazyn &magazyn, Kur
 
     if (algorithm == "genetyczny")
     {
-        // route = trasa.znajdzTraseAlgorytmGenetyczny();
+        route = trasa.znajdzTraseAlgorytmGenetyczny();
     }
     else if (algorithm == "zachlanny")
     {
@@ -189,7 +189,7 @@ void classDraw::DisplayRoutes(std::vector<Paczka> &paczki, Magazyn &magazyn, Kur
     }
     else if (algorithm == "wyzarzanie")
     {
-        // route = trasa.znajdzTraseAlgorytmWyzarzania();
+        route = trasa.znajdzTraseAlgorytmWyzarzania();
     }
     else
     {

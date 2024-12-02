@@ -108,125 +108,179 @@ vector<Paczka> Trasa::znajdzTraseAlgorytmZachlanny() {
 
 
 
-
-
-
-
-
 // Algorytm genetyczny z uwzględnieniem ładowności
-// vector<Paczka> Trasa::znajdzTraseAlgorytmGenetyczny(int rozmiarPopulacji, int liczbaPokolen) {
-//     vector<Paczka> wybranePaczki = rozwiazProblemPlecakowy(kurier->getLadownosc());
-//     vector<vector<Paczka>> populacja(rozmiarPopulacji);
+vector<Paczka> Trasa::znajdzTraseAlgorytmGenetyczny(int rozmiarPopulacji, int liczbaPokolen) {
+    vector<Paczka> paczkiDoDostarczenia = paczki; // Paczki, które muszą zostać dostarczone
+    vector<Paczka> wynikowaTrasa;                // Wynikowa trasa, która zostanie zwrócona
 
-//     random_device rd;
-//     mt19937 generator(rd());
+    while (!paczkiDoDostarczenia.empty()) {
+        // Rozwiąż problem plecakowy dla aktualnych paczek
+        vector<Paczka> wybranePaczki = rozwiazProblemPlecakowy(paczkiDoDostarczenia, kurier->getLadownosc());
+        if (wybranePaczki.empty()) {
+            std::cerr << "Nie można dostarczyć więcej paczek, ponieważ żadna paczka nie mieści się w ładowności kuriera.\n";
+            break;
+        }
 
-//     for (int i = 0; i < rozmiarPopulacji; ++i) {
-//         vector<Paczka> trasa = wybranePaczki;
-//         shuffle(trasa.begin(), trasa.end(), generator);
-//         populacja[i] = trasa;
-//     }
+        vector<vector<Paczka>> populacja(rozmiarPopulacji);
+        random_device rd;
+        mt19937 generator(rd());
 
-//     for (int pokolenie = 0; pokolenie < liczbaPokolen; ++pokolenie) {
-//         sort(populacja.begin(), populacja.end(), [this](const vector<Paczka>& a, const vector<Paczka>& b) {
-//             return obliczDlugoscTrasy(a) < obliczDlugoscTrasy(b);
-//         });
+        // Tworzenie początkowej populacji
+        for (int i = 0; i < rozmiarPopulacji; ++i) {
+            vector<Paczka> trasa = wybranePaczki;
+            shuffle(trasa.begin(), trasa.end(), generator);
+            populacja[i] = trasa;
+        }
 
-//         vector<vector<Paczka>> nowaPopulacja(populacja.begin(), populacja.begin() + rozmiarPopulacji / 2);
+        // Ewolucja populacji
+        for (int pokolenie = 0; pokolenie < liczbaPokolen; ++pokolenie) {
+            // Sortuj populację według długości trasy
+            sort(populacja.begin(), populacja.end(), [this](const vector<Paczka>& a, const vector<Paczka>& b) {
+                return obliczDlugoscTrasy(a) < obliczDlugoscTrasy(b);
+            });
 
-//         while (nowaPopulacja.size() < rozmiarPopulacji) {
-//             int i1 = rand() % (rozmiarPopulacji / 2);
-//             int i2 = rand() % (rozmiarPopulacji / 2);
-//             vector<Paczka> dziecko = krzyzowanie(populacja[i1], populacja[i2]);
+            // Wybierz najlepszą połowę populacji
+            vector<vector<Paczka>> nowaPopulacja(populacja.begin(), populacja.begin() + rozmiarPopulacji / 2);
 
-//             if (rand() % 100 < 10) {
-//                 mutacja(dziecko);
-//             }
+            // Krzyżowanie i mutacje
+            while (nowaPopulacja.size() < rozmiarPopulacji) {
+                int i1 = rand() % (rozmiarPopulacji / 2);
+                int i2 = rand() % (rozmiarPopulacji / 2);
+                vector<Paczka> dziecko = krzyzowanie(populacja[i1], populacja[i2]);
 
-//             nowaPopulacja.push_back(dziecko);
-//         }
+                if (rand() % 100 < 10) { // 10% szansa na mutację
+                    mutacja(dziecko);
+                }
 
-//         populacja = nowaPopulacja;
-//     }
+                nowaPopulacja.push_back(dziecko);
+            }
 
-//     // Zwracamy najlepszą trasę z populacji
-//     return populacja[0];
-// }
+            populacja = nowaPopulacja;
+        }
+
+        // Wybierz najlepszą trasę z obecnej populacji i dodaj do wynikowej trasy
+        vector<Paczka> najlepszaTrasa = populacja[0];
+        wynikowaTrasa.emplace_back(Paczka(-1, 0.0, magazyn->getX(), magazyn->getY())); // Dodaj powrót do magazynu
+        wynikowaTrasa.insert(wynikowaTrasa.end(), najlepszaTrasa.begin(), najlepszaTrasa.end());
+        wynikowaTrasa.emplace_back(Paczka(-1, 0.0, magazyn->getX(), magazyn->getY())); // Dodaj powrót do magazynu
+
+        // Usuń dostarczone paczki z listy paczek do dostarczenia
+        for (const auto& paczka : najlepszaTrasa) {
+            auto it = find(paczkiDoDostarczenia.begin(), paczkiDoDostarczenia.end(), paczka);
+            if (it != paczkiDoDostarczenia.end()) {
+                paczkiDoDostarczenia.erase(it);
+            }
+        }
+    }
+
+    return wynikowaTrasa; // Zwróć jedną trasę uwzględniającą wszystkie paczki
+}
+
 
 // // Algorytm wyżarzania z uwzględnieniem ładowności
-// vector<Paczka> Trasa::znajdzTraseAlgorytmWyzarzania() {
-//     vector<Paczka> wybranePaczki = rozwiazProblemPlecakowy(kurier->getLadownosc());
-//     vector<Paczka> optymalnaTrasa = wybranePaczki;
-//     double temperatura = 100.0;
-//     double wspolczynnikChlodzenia = 0.999;
-//     double minimalnaTemperatura = 0.0001;
+vector<Paczka> Trasa::znajdzTraseAlgorytmWyzarzania() {
+    vector<Paczka> paczkiDoDostarczenia = paczki; // Paczki, które muszą zostać dostarczone
+    vector<Paczka> wynikowaTrasa;                // Wynikowa trasa, która zostanie zwrócona
 
-//     while (temperatura > minimalnaTemperatura) {
-//         int i = rand() % optymalnaTrasa.size();
-//         int j = rand() % optymalnaTrasa.size();
+    while (!paczkiDoDostarczenia.empty()) {
+        // Rozwiąż problem plecakowy dla aktualnych paczek
+        vector<Paczka> wybranePaczki = rozwiazProblemPlecakowy(paczkiDoDostarczenia, kurier->getLadownosc());
+        if (wybranePaczki.empty()) {
+            std::cerr << "Nie można dostarczyć więcej paczek, ponieważ żadna paczka nie mieści się w ładowności kuriera.\n";
+            break;
+        }
 
-//         double aktualnaDlugosc = obliczDlugoscTrasy(optymalnaTrasa);
-//         swap(optymalnaTrasa[i], optymalnaTrasa[j]);
-//         double nowaDlugosc = obliczDlugoscTrasy(optymalnaTrasa);
+        // Wyżarzanie na wybranych paczkach
+        vector<Paczka> optymalnaTrasa = wybranePaczki;
+        double temperatura = 100.0;
+        double wspolczynnikChlodzenia = 0.999;
+        double minimalnaTemperatura = 0.0001;
 
-//         double prawdopodobienstwo = exp((aktualnaDlugosc - nowaDlugosc) / temperatura);
-//         if (prawdopodobienstwo < static_cast<double>(rand()) / RAND_MAX) {
-//             swap(optymalnaTrasa[i], optymalnaTrasa[j]);
-//         }
+        while (temperatura > minimalnaTemperatura) {
+            int i = rand() % optymalnaTrasa.size();
+            int j = rand() % optymalnaTrasa.size();
 
-//         temperatura *= wspolczynnikChlodzenia;
-//     }
+            double aktualnaDlugosc = obliczDlugoscTrasy(optymalnaTrasa);
+            swap(optymalnaTrasa[i], optymalnaTrasa[j]);
+            double nowaDlugosc = obliczDlugoscTrasy(optymalnaTrasa);
 
-//     return optymalnaTrasa;
-// }
+            double prawdopodobienstwo = exp((aktualnaDlugosc - nowaDlugosc) / temperatura);
+            if (prawdopodobienstwo < static_cast<double>(rand()) / RAND_MAX) {
+                swap(optymalnaTrasa[i], optymalnaTrasa[j]);
+            }
+
+            temperatura *= wspolczynnikChlodzenia;
+        }
+
+        // Dodaj magazyn jako początek trasy
+        wynikowaTrasa.emplace_back(Paczka(-1, 0.0, magazyn->getX(), magazyn->getY()));
+
+        // Dodaj wybrane paczki do wynikowej trasy
+        wynikowaTrasa.insert(wynikowaTrasa.end(), optymalnaTrasa.begin(), optymalnaTrasa.end());
+
+        // Dodaj magazyn jako koniec tej części trasy
+        wynikowaTrasa.emplace_back(Paczka(-1, 0.0, magazyn->getX(), magazyn->getY()));
+
+        // Usuń dostarczone paczki z listy paczek do dostarczenia
+        for (const auto& paczka : optymalnaTrasa) {
+            auto it = find(paczkiDoDostarczenia.begin(), paczkiDoDostarczenia.end(), paczka);
+            if (it != paczkiDoDostarczenia.end()) {
+                paczkiDoDostarczenia.erase(it);
+            }
+        }
+    }
+
+    return wynikowaTrasa; // Zwróć jedną trasę uwzględniającą wszystkie paczki
+}
+
 
 // // Wyświetlanie tras
-// void Trasa::displayTrasy(const vector<vector<Paczka>>& trasy) {
-//     for (size_t i = 0; i < trasy.size(); ++i) {
-//         cout << "Trasa " << i + 1 << ":\n";
-//         for (const auto& paczka : trasy[i]) {
-//             cout << "- Paczka ID: " << paczka.getId()
-//                  << ", Waga: " << paczka.getWaga()
-//                  << ", Współrzędne: (" << paczka.getX() << ", " << paczka.getY() << ")\n";
-//         }
-//         cout << "Długość trasy: " << obliczDlugoscTrasy(trasy[i]) << " jednostek.\n\n";
-//     }
-// }
+void Trasa::displayTrasy(const vector<vector<Paczka>>& trasy) {
+    for (size_t i = 0; i < trasy.size(); ++i) {
+        cout << "Trasa " << i + 1 << ":\n";
+        for (const auto& paczka : trasy[i]) {
+            cout << "- Paczka ID: " << paczka.getId()
+                 << ", Waga: " << paczka.getWaga()
+                 << ", Współrzędne: (" << paczka.getX() << ", " << paczka.getY() << ")\n";
+        }
+        cout << "Długość trasy: " << obliczDlugoscTrasy(trasy[i]) << " jednostek.\n\n";
+    }
+}
 
-// // Funkcja krzyżowania tras (jednolite krzyżowanie)
-// vector<Paczka> Trasa::krzyzowanie(const vector<Paczka>& rodzic1, const vector<Paczka>& rodzic2) {
-//     vector<Paczka> dziecko = rodzic1;
-//     size_t n = rodzic1.size();
+// Funkcja krzyżowania tras (jednolite krzyżowanie)
+vector<Paczka> Trasa::krzyzowanie(const vector<Paczka>& rodzic1, const vector<Paczka>& rodzic2) {
+    vector<Paczka> dziecko = rodzic1;
+    size_t n = rodzic1.size();
 
-//     random_device rd;
-//     mt19937 generator(rd());
-//     uniform_int_distribution<size_t> dist(0, n - 1);
+    random_device rd;
+    mt19937 generator(rd());
+    uniform_int_distribution<size_t> dist(0, n - 1);
 
-//     for (size_t i = 0; i < n; ++i) {
-//         if (dist(generator) % 2 == 0 && find(dziecko.begin(), dziecko.end(), rodzic2[i]) == dziecko.end()) {
-//             dziecko[i] = rodzic2[i];
-//         }
-//     }
+    for (size_t i = 0; i < n; ++i) {
+        if (dist(generator) % 2 == 0 && find(dziecko.begin(), dziecko.end(), rodzic2[i]) == dziecko.end()) {
+            dziecko[i] = rodzic2[i];
+        }
+    }
 
-//     return dziecko;
-// }
+    return dziecko;
+}
 
-// // Funkcja mutacji (zamiana dwóch paczek)
-// void Trasa::mutacja(vector<Paczka>& trasa) {
-//     size_t n = trasa.size();
+// Funkcja mutacji (zamiana dwóch paczek)
+void Trasa::mutacja(vector<Paczka>& trasa) {
+    size_t n = trasa.size();
 
-//     if (n < 2) return; // Brak wystarczającej liczby elementów do mutacji
+    if (n < 2) return; // Brak wystarczającej liczby elementów do mutacji
 
-//     random_device rd;
-//     mt19937 generator(rd());
-//     uniform_int_distribution<size_t> dist(0, n - 1);
+    random_device rd;
+    mt19937 generator(rd());
+    uniform_int_distribution<size_t> dist(0, n - 1);
 
-//     size_t i = dist(generator);
-//     size_t j = dist(generator);
+    size_t i = dist(generator);
+    size_t j = dist(generator);
 
-//     while (i == j) {
-//         j = dist(generator); // Zapewnij, że indeksy są różne
-//     }
+    while(i == j) {
+        j = dist(generator); // Zapewnij, że indeksy są różne
+    }
 
-//     swap(trasa[i], trasa[j]);
-// }
+    swap(trasa[i], trasa[j]);
+}

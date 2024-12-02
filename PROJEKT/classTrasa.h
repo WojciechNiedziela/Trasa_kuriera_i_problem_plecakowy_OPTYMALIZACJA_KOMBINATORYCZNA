@@ -21,8 +21,8 @@ private:
     double obliczDlugoscTrasy(const std::vector<Paczka>& trasa) const;
 
     // Funkcje pomocnicze dla algorytmu genetycznego
-    // std::vector<Paczka> krzyzowanie(const std::vector<Paczka>& rodzic1, const std::vector<Paczka>& rodzic2);
-    // void mutacja(std::vector<Paczka>& trasa);
+    std::vector<Paczka> krzyzowanie(const std::vector<Paczka>& rodzic1, const std::vector<Paczka>& rodzic2);
+    void mutacja(std::vector<Paczka>& trasa);
 
 public:
     // Konstruktor
@@ -36,8 +36,8 @@ public:
 
     // Algorytmy optymalizacyjne
     std::vector<Paczka> znajdzTraseAlgorytmZachlanny(); // Algorytm zachłanny z podziałem tras
-    // std::vector<Paczka> znajdzTraseAlgorytmGenetyczny(int rozmiarPopulacji = 50, int liczbaPokolen = 100); // Algorytm genetyczny
-    // std::vector<Paczka> znajdzTraseAlgorytmWyzarzania(); // Algorytm wyżarzania
+    std::vector<Paczka> znajdzTraseAlgorytmGenetyczny(int rozmiarPopulacji = 50, int liczbaPokolen = 100); // Algorytm genetyczny
+    std::vector<Paczka> znajdzTraseAlgorytmWyzarzania(); // Algorytm wyżarzania
 
     // Funkcja do wyświetlania tras
     void displayTrasy(const std::vector<std::vector<Paczka>>& trasy);
