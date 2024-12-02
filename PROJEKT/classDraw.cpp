@@ -137,7 +137,7 @@ void classDraw::DisplayRoutes(std::vector<Paczka> &paczki, Magazyn &magazyn, Kur
     } else if (algorithm == "zachlanny") {
         route = trasa.znajdzTraseAlgorytmZachlanny();
     } else if (algorithm == "wyzarzanie") {
-        route = trasa.znajdzTraseWyzarzanie();
+        route = trasa.znajdzTraseAlgorytmWyzarzania();
     } else {
         std::cout << "Nieznany algorytm: " << algorithm << "\n";
         return;

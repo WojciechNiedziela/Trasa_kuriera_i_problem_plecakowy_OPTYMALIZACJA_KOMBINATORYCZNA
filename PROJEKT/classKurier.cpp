@@ -4,12 +4,14 @@
 using namespace std;
 
 // Konstruktor
-Kurier::Kurier(int id_kuriera, const string& imie, const string& nazwisko, const string& typ_pojazdu, Magazyn* magazyn) {
+Kurier::Kurier(int id_kuriera, const string& imie, const string& nazwisko, const string& typ_pojazdu, 
+Magazyn* magazyn, double ladownosc) {
     this->id_kuriera = id_kuriera; // Przypisanie id kuriera
     this->imie = imie;               // Przypisanie imienia kuriera
     this->nazwisko = nazwisko;       // Przypisanie nazwiska kuriera
     this->typ_pojazdu = typ_pojazdu; // Przypisanie typu pojazdu
     this->magazyn = magazyn;         // Przypisanie wskaźnika do magazynu
+    this->ladownosc = ladownosc;     // Przypisanie ładowności
 }
 
 // Getter dla id kuriera
@@ -40,6 +42,10 @@ string Kurier::getTypPojazdu() const {
 // Getter dla magazynu
 Magazyn* Kurier::getMagazyn() const {
     return this->magazyn;
+}
+
+double Kurier::getLadownosc() const {
+    return this->ladownosc;
 }
 
 // Metoda do wyświetlania informacji o kurierze
