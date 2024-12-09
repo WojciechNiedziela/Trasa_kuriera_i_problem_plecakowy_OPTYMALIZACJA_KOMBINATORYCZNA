@@ -36,11 +36,7 @@ public:
     // Funkcja wyświetlająca szczegóły trasy
     void displayTrasa() const;
 
-    // // Algorytmy optymalizacyjne
-    // std::vector<Paczka> znajdzTraseAlgorytmZachlanny(); // Algorytm zachłanny z podziałem tras
-    // std::vector<Paczka> znajdzTraseAlgorytmGenetyczny(int rozmiarPopulacji = 50, int liczbaPokolen = 100); // Algorytm genetyczny
-    // std::vector<Paczka> znajdzTraseAlgorytmWyzarzania(); // Algorytm wyżarzania
-
+  
       std::vector<std::vector<Paczka>> znajdzTraseAlgorytmZachlanny(); // Algorytm zachłanny
     std::vector<std::vector<Paczka>> znajdzTraseAlgorytmGenetyczny(int rozmiarPopulacji = 50, int liczbaPokolen = 100); // Algorytm genetyczny
     std::vector<std::vector<Paczka>> znajdzTraseAlgorytmWyzarzania(); // Algorytm wyżarzania

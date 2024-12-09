@@ -3,26 +3,11 @@
 
 using namespace std;
 
-// Konstruktor
-Paczka::Paczka(int id, double waga, double x, double y) {
-    this->id_paczki = id;
-    //this->adres_dostawy = adres;
-    this->waga = waga;
-    this->x = x;
-    this->y = y;
-}
-
-
 
 // Getter dla ID paczki
 int Paczka::getId() const {
     return this->id_paczki;
 }
-
-// Getter dla adresu dostawy paczki
-// string Paczka::getAdres() const {
-//     return this->adres_dostawy;
-// }
 
 // Getter dla wagi paczki
 double Paczka::getWaga() const {
@@ -36,6 +21,16 @@ double Paczka::getX() const {
 double Paczka::getY() const {
     return this->y;
 }
+
+std::string Paczka::getDataWaznosci() const {
+    return this->data_waznosci;
+}
+
+// Settery
+void Paczka::setDataWaznosci(const std::string& data_waznosci="2099-12-31") {
+    this->data_waznosci = data_waznosci;
+}
+
 
 // Wyświetlanie informacji o paczce
 void Paczka::display() const {

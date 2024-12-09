@@ -15,20 +15,6 @@
 
 classDraw::classDraw() {}
 
-// void classDraw::MagazynInput(double &magazynX, double &magazynY) {
-//     std::cout << "Podaj wspolrzedne magazynu (X Y): ";
-//     while (true) {
-//         std::cin >> magazynX >> magazynY;
-//         if (!std::cin.fail()) {
-//             break;
-//         }
-//         std::cout << "Blad: wprowadz poprawne liczby.\n";
-//         std::cin.clear();
-//         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-//     }
-//     std::cout << "Magazyn ustawiono na wspolrzedne (" << magazynX << ", " << magazynY << ").\n";
-// }
-
 // Funkcja do ustawienia liczby kurierów
 void classDraw::SetCouriers(std::vector<Kurier> &kurierzy) {
     int liczbaKurierow;
@@ -83,9 +69,10 @@ void classDraw::LoadPackagesFromFile(std::vector<Paczka> &paczki, const std::str
 
     int id;
     double waga, x, y;
-    while (file >> id >> waga >> x >> y)
+    string data_waznosci;
+    while (file >> id >> waga >> x >> y >> data_waznosci)
     {
-        paczki.emplace_back(id, waga, x, y);
+        paczki.emplace_back(id, waga, x, y, data_waznosci);
     }
 
     file.close();
@@ -184,22 +171,23 @@ void classDraw::MainWindow(std::vector<Paczka> &paczki, Magazyn &magazyn, std::v
 void classDraw::AddPackage(std::vector<Paczka> &paczki)
 {
     int id;
-    std::string adres;
+    std::string adres, data_waznosci;
     double waga, x, y;
 
     std::cout << "Podaj ID paczki: ";
     std::cin >> id;
-    // std::cout << "Podaj adres paczki: ";
-    // std::cin.ignore();
-    // std::getline(std::cin, adres);
+
     std::cout << "Podaj wage paczki (kg): ";
     std::cin >> waga;
     std::cout << "Podaj wspolrzedne paczki (X Y): ";
     std::cin >> x >> y;
 
+    std::cout << "Podaj date waznosci w formacie YYYY-MM-DD: ";
+    std::cin >> data_waznosci;
+
     if (!std::cin.fail())
     {
-        paczki.emplace_back(id, waga, x, y);
+        paczki.emplace_back(id, waga, x, y, data_waznosci);
         std::cout << "Paczka dodana pomyslnie.\n";
     }
     else
@@ -223,7 +211,8 @@ void classDraw::DisplayPackages(const std::vector<Paczka> &paczki)
         std::cout << "ID: " << paczka.getId()
                   //<< ", Adres: " << paczka.getAdres()
                   << ", Waga: " << paczka.getWaga()
-                  << ", Wspolrzedne: (" << paczka.getX() << ", " << paczka.getY() << ")\n";
+                  << ", Wspolrzedne: (" << paczka.getX() << ", " << paczka.getY() << ")\n"
+                  << ", Data waznosci: " << paczka.getDataWaznosci() << "\n";
     }
 }
 

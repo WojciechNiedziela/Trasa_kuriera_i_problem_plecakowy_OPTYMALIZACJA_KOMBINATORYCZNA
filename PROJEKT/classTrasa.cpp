@@ -55,42 +55,6 @@ vector<Paczka> Trasa::rozwiazProblemPlecakowy(const vector<Paczka>& dostepnePacz
 }
 
 
-// vector<Paczka> Trasa::znajdzTraseAlgorytmZachlanny() {
-//     vector<Paczka> wynikowaTrasa;                 // Wynikowy wektor paczek w trasie
-//     vector<Paczka> paczkiDoDostarczenia = paczki; // Kopia paczek do dostarczenia
-
-//     while (!paczkiDoDostarczenia.empty()) {
-//         // Rozwiąż problem plecakowy dla aktualnych paczek
-//         vector<Paczka> aktualnaTrasa = rozwiazProblemPlecakowy(paczkiDoDostarczenia, kurier->getLadownosc());
-
-//         // Obsługa przypadku, gdy żadna paczka nie zmieściła się w ładowności
-//         if (aktualnaTrasa.empty()) {
-//             std::cerr << "Brak paczek możliwych do dostarczenia – zakończenie trasy.\n";
-//             break;
-//         }
-
-//         // Dodaj magazyn jako początek trasy
-//         wynikowaTrasa.emplace_back(Paczka(-1, 0.0, magazyn->getX(), magazyn->getY()));
-
-//         // Dodaj wybrane paczki do wynikowej trasy
-//         wynikowaTrasa.insert(wynikowaTrasa.end(), aktualnaTrasa.begin(), aktualnaTrasa.end());
-
-//         // Dodaj magazyn jako koniec tej części trasy
-//         wynikowaTrasa.emplace_back(Paczka(-1, 0.0, magazyn->getX(), magazyn->getY()));
-
-//         // Usuń paczki dostarczone w tej iteracji
-//         for (const auto& paczka : aktualnaTrasa) {
-//             auto it = std::find(paczkiDoDostarczenia.begin(), paczkiDoDostarczenia.end(), paczka);
-//             if (it != paczkiDoDostarczenia.end()) {
-//                 paczkiDoDostarczenia.erase(it);
-//             }
-//         }
-//     }
-
-//     return wynikowaTrasa; // Zwróć jedną trasę uwzględniającą wszystkie paczki
-// }
-
-
 std::vector<std::vector<Paczka>> Trasa::znajdzTraseAlgorytmZachlanny() {
     std::vector<std::vector<Paczka>> wynikoweTrasy(kurierzy.size());
     std::vector<Paczka> paczkiDoDostarczenia = paczki;
@@ -205,74 +169,6 @@ void Trasa::mutacja(vector<Paczka>& trasa) {
 }
 
 
-// Algorytm genetyczny z uwzględnieniem ładowności
-// vector<Paczka> Trasa::znajdzTraseAlgorytmGenetyczny(int rozmiarPopulacji, int liczbaPokolen) {
-//     vector<Paczka> paczkiDoDostarczenia = paczki; // Paczki, które muszą zostać dostarczone
-//     vector<Paczka> wynikowaTrasa;                // Wynikowa trasa, która zostanie zwrócona
-
-//     while (!paczkiDoDostarczenia.empty()) {
-//         // Rozwiąż problem plecakowy dla aktualnych paczek
-//         vector<Paczka> wybranePaczki = rozwiazProblemPlecakowy(paczkiDoDostarczenia, kurier->getLadownosc());
-//         if (wybranePaczki.empty()) {
-//             std::cerr << "Nie można dostarczyć więcej paczek, ponieważ żadna paczka nie mieści się w ładowności kuriera.\n";
-//             break;
-//         }
-
-//         vector<vector<Paczka>> populacja(rozmiarPopulacji);
-//         random_device rd;
-//         mt19937 generator(rd());
-
-//         // Tworzenie początkowej populacji
-//         for (int i = 0; i < rozmiarPopulacji; ++i) {
-//             vector<Paczka> trasa = wybranePaczki;
-//             shuffle(trasa.begin(), trasa.end(), generator);
-//             populacja[i] = trasa;
-//         }
-
-//         // Ewolucja populacji
-//         for (int pokolenie = 0; pokolenie < liczbaPokolen; ++pokolenie) {
-//             // Sortuj populację według długości trasy
-//             sort(populacja.begin(), populacja.end(), [this](const vector<Paczka>& a, const vector<Paczka>& b) {
-//                 return obliczDlugoscTrasy(a) < obliczDlugoscTrasy(b);
-//             });
-
-//             // Wybierz najlepszą połowę populacji
-//             vector<vector<Paczka>> nowaPopulacja(populacja.begin(), populacja.begin() + rozmiarPopulacji / 2);
-
-//             // Krzyżowanie i mutacje
-//             while (nowaPopulacja.size() < rozmiarPopulacji) {
-//                 int i1 = rand() % (rozmiarPopulacji / 2);
-//                 int i2 = rand() % (rozmiarPopulacji / 2);
-//                 vector<Paczka> dziecko = krzyzowanie(populacja[i1], populacja[i2]);
-
-//                 if (rand() % 100 < 10) { // 10% szansa na mutację
-//                     mutacja(dziecko);
-//                 }
-
-//                 nowaPopulacja.push_back(dziecko);
-//             }
-
-//             populacja = nowaPopulacja;
-//         }
-
-//         // Wybierz najlepszą trasę z obecnej populacji i dodaj do wynikowej trasy
-//         vector<Paczka> najlepszaTrasa = populacja[0];
-//         wynikowaTrasa.emplace_back(Paczka(-1, 0.0, magazyn->getX(), magazyn->getY())); // Dodaj powrót do magazynu
-//         wynikowaTrasa.insert(wynikowaTrasa.end(), najlepszaTrasa.begin(), najlepszaTrasa.end());
-//         wynikowaTrasa.emplace_back(Paczka(-1, 0.0, magazyn->getX(), magazyn->getY())); // Dodaj powrót do magazynu
-
-//         // Usuń dostarczone paczki z listy paczek do dostarczenia
-//         for (const auto& paczka : najlepszaTrasa) {
-//             auto it = find(paczkiDoDostarczenia.begin(), paczkiDoDostarczenia.end(), paczka);
-//             if (it != paczkiDoDostarczenia.end()) {
-//                 paczkiDoDostarczenia.erase(it);
-//             }
-//         }
-//     }
-
-//     return wynikowaTrasa; // Zwróć jedną trasę uwzględniającą wszystkie paczki
-// }
-
 
 std::vector<std::vector<Paczka>> Trasa::znajdzTraseAlgorytmGenetyczny(int rozmiarPopulacji, int liczbaPokolen) {
     std::vector<std::vector<Paczka>> wynikoweTrasy(kurierzy.size());
@@ -334,62 +230,6 @@ std::vector<std::vector<Paczka>> Trasa::znajdzTraseAlgorytmGenetyczny(int rozmia
 }
 
 
-
-// // Algorytm wyżarzania z uwzględnieniem ładowności
-// vector<Paczka> Trasa::znajdzTraseAlgorytmWyzarzania() {
-//     vector<Paczka> paczkiDoDostarczenia = paczki; // Paczki, które muszą zostać dostarczone
-//     vector<Paczka> wynikowaTrasa;                // Wynikowa trasa, która zostanie zwrócona
-
-//     while (!paczkiDoDostarczenia.empty()) {
-//         // Rozwiąż problem plecakowy dla aktualnych paczek
-//         vector<Paczka> wybranePaczki = rozwiazProblemPlecakowy(paczkiDoDostarczenia, kurier->getLadownosc());
-//         if (wybranePaczki.empty()) {
-//             std::cerr << "Nie można dostarczyć więcej paczek, ponieważ żadna paczka nie mieści się w ładowności kuriera.\n";
-//             break;
-//         }
-
-//         // Wyżarzanie na wybranych paczkach
-//         vector<Paczka> optymalnaTrasa = wybranePaczki;
-//         double temperatura = 100.0;
-//         double wspolczynnikChlodzenia = 0.999;
-//         double minimalnaTemperatura = 0.0001;
-
-//         while (temperatura > minimalnaTemperatura) {
-//             int i = rand() % optymalnaTrasa.size();
-//             int j = rand() % optymalnaTrasa.size();
-
-//             double aktualnaDlugosc = obliczDlugoscTrasy(optymalnaTrasa);
-//             swap(optymalnaTrasa[i], optymalnaTrasa[j]);
-//             double nowaDlugosc = obliczDlugoscTrasy(optymalnaTrasa);
-
-//             double prawdopodobienstwo = exp((aktualnaDlugosc - nowaDlugosc) / temperatura);
-//             if (prawdopodobienstwo < static_cast<double>(rand()) / RAND_MAX) {
-//                 swap(optymalnaTrasa[i], optymalnaTrasa[j]);
-//             }
-
-//             temperatura *= wspolczynnikChlodzenia;
-//         }
-
-//         // Dodaj magazyn jako początek trasy
-//         wynikowaTrasa.emplace_back(Paczka(-1, 0.0, magazyn->getX(), magazyn->getY()));
-
-//         // Dodaj wybrane paczki do wynikowej trasy
-//         wynikowaTrasa.insert(wynikowaTrasa.end(), optymalnaTrasa.begin(), optymalnaTrasa.end());
-
-//         // Dodaj magazyn jako koniec tej części trasy
-//         wynikowaTrasa.emplace_back(Paczka(-1, 0.0, magazyn->getX(), magazyn->getY()));
-
-//         // Usuń dostarczone paczki z listy paczek do dostarczenia
-//         for (const auto& paczka : optymalnaTrasa) {
-//             auto it = find(paczkiDoDostarczenia.begin(), paczkiDoDostarczenia.end(), paczka);
-//             if (it != paczkiDoDostarczenia.end()) {
-//                 paczkiDoDostarczenia.erase(it);
-//             }
-//         }
-//     }
-
-//     return wynikowaTrasa; // Zwróć jedną trasę uwzględniającą wszystkie paczki
-// }
 
 std::vector<std::vector<Paczka>> Trasa::znajdzTraseAlgorytmWyzarzania() {
     std::vector<std::vector<Paczka>> wynikoweTrasy(kurierzy.size());

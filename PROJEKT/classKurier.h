@@ -21,11 +21,7 @@ public:
 
     // Gettery
     int getId() const;
- //   string getImie() const;
- //   string getNazwisko() const;
- //   string getNazwa() const; // Gettera dla pełnej nazwy
- //   string getTypPojazdu() const;
- //   Magazyn* getMagazyn() const;
+
    double getLadownosc() const;
     // Metoda do wyświetlania informacji o kurierze
     void displayKurier() const;
