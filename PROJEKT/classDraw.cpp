@@ -16,18 +16,21 @@
 classDraw::classDraw() {}
 
 // Funkcja do ustawienia liczby kurierów
-void classDraw::SetCouriers(std::vector<Kurier> &kurierzy) {
+void classDraw::SetCouriers(std::vector<Kurier> &kurierzy)
+{
     int liczbaKurierow;
     std::cout << "Podaj liczbe kurierow: ";
     std::cin >> liczbaKurierow;
 
-    if (liczbaKurierow <= 0) {
+    if (liczbaKurierow <= 0)
+    {
         std::cout << "Blad: liczba kurierow musi byc wieksza od 0.\n";
         return;
     }
 
     kurierzy.clear(); // Wyczyść listę kurierów
-    for (int i = 1; i <= liczbaKurierow; ++i) {
+    for (int i = 1; i <= liczbaKurierow; ++i)
+    {
         int id;
         double ladownosc;
 
@@ -43,19 +46,21 @@ void classDraw::SetCouriers(std::vector<Kurier> &kurierzy) {
 }
 
 // Funkcja do wyświetlenia szczegółów kurierów
-void classDraw::DisplayCouriers(const std::vector<Kurier> &kurierzy) {
-    if (kurierzy.empty()) {
+void classDraw::DisplayCouriers(const std::vector<Kurier> &kurierzy)
+{
+    if (kurierzy.empty())
+    {
         std::cout << "Brak zarejestrowanych kurierow.\n";
         return;
     }
 
     std::cout << "\n--- Lista Kurierow ---\n";
-    for (const auto &kurier : kurierzy) {
+    for (const auto &kurier : kurierzy)
+    {
         std::cout << "Id: " << kurier.getId()
                   << ", Ladownosc: " << kurier.getLadownosc() << " kg\n";
     }
 }
-
 
 // Funkcja do wczytywania paczek z pliku
 void classDraw::LoadPackagesFromFile(std::vector<Paczka> &paczki, const std::string &fileName)
@@ -82,8 +87,9 @@ void classDraw::LoadPackagesFromFile(std::vector<Paczka> &paczki, const std::str
 // Zaktualizowane menu
 void classDraw::MainWindow(std::vector<Paczka> &paczki, Magazyn &magazyn, std::vector<Kurier> &kurierzy, Mapa &mapa)
 {
-    std::vector<Kurier*> kurierzyPtr; // Tymczasowy wektor wskaźników
-    for (Kurier &kurier : kurierzy) {
+    std::vector<Kurier *> kurierzyPtr; // Tymczasowy wektor wskaźników
+    for (Kurier &kurier : kurierzy)
+    {
         kurierzyPtr.push_back(&kurier); // Dodaj wskaźnik do każdego kuriera
     }
 
@@ -92,8 +98,9 @@ void classDraw::MainWindow(std::vector<Paczka> &paczki, Magazyn &magazyn, std::v
 
     //    MagazynInput(magazynX, magazynY);
 
-     int choice;
-    while (true) {
+    int choice;
+    while (true)
+    {
         std::cout << "\n--- MENU GLOWNE ---\n";
         std::cout << "1. Dodaj paczke\n";
         std::cout << "2. Wczytaj paczki z pliku\n";
@@ -107,63 +114,83 @@ void classDraw::MainWindow(std::vector<Paczka> &paczki, Magazyn &magazyn, std::v
         std::cout << "Wybierz opcje: ";
         std::cin >> choice;
 
-        if (std::cin.fail() || choice < 1 || choice > 9) {
+        if (std::cin.fail() || choice < 1 || choice > 9)
+        {
             std::cout << "Blad: podaj poprawny numer opcji.\n";
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             continue;
         }
 
-        switch (choice) {
-            case 1: {
-                AddPackage(paczki);
-                break;
+        switch (choice)
+        {
+        case 1:
+        {
+            AddPackage(paczki);
+            break;
+        }
+        case 2:
+        {
+            std::string fileName = "paczki.txt";
+            LoadPackagesFromFile(paczki, fileName);
+            break;
+        }
+        case 3:
+        {
+            DisplayPackages(paczki);
+            break;
+        }
+        case 4:
+        {
+            SetCouriers(kurierzy);
+            break;
+        }
+        case 5:
+        {
+            DisplayCouriers(kurierzy);
+            break;
+        }
+        case 6:
+        {
+            if (!kurierzy.empty())
+            {
+                DisplayRoutes(paczki, magazyn, kurierzy, mapa, "genetyczny");
             }
-            case 2: {
-                std::string fileName = "paczki.txt";
-                LoadPackagesFromFile(paczki, fileName);
-                break;
+            else
+            {
+                std::cout << "Brak zarejestrowanych kurierow. Ustaw kurierow najpierw.\n";
             }
-            case 3: {
-                DisplayPackages(paczki);
-                break;
+            break;
+        }
+        case 7:
+        {
+            if (!kurierzy.empty())
+            {
+                DisplayRoutes(paczki, magazyn, kurierzy, mapa, "zachlanny");
             }
-            case 4: {
-                SetCouriers(kurierzy);
-                break;
+            else
+            {
+                std::cout << "Brak zarejestrowanych kurierow. Ustaw kurierow najpierw.\n";
             }
-            case 5: {
-                DisplayCouriers(kurierzy);
-                break;
+            break;
+        }
+        case 8:
+        {
+            if (!kurierzy.empty())
+            {
+                DisplayRoutes(paczki, magazyn, kurierzy, mapa, "wyzarzanie");
             }
-            case 6: {
-                if (!kurierzy.empty()) {
-                    DisplayRoutes(paczki, magazyn, kurierzy, mapa, "genetyczny");
-                } else {
-                    std::cout << "Brak zarejestrowanych kurierow. Ustaw kurierow najpierw.\n";
-                }
-                break;
+            else
+            {
+                std::cout << "Brak zarejestrowanych kurierow. Ustaw kurierow najpierw.\n";
             }
-            case 7: {
-                if (!kurierzy.empty()) {
-                    DisplayRoutes(paczki, magazyn, kurierzy, mapa, "zachlanny");
-                } else {
-                    std::cout << "Brak zarejestrowanych kurierow. Ustaw kurierow najpierw.\n";
-                }
-                break;
-            }
-            case 8: {
-                if (!kurierzy.empty()) {
-                    DisplayRoutes(paczki, magazyn, kurierzy, mapa, "wyzarzanie");
-                } else {
-                    std::cout << "Brak zarejestrowanych kurierow. Ustaw kurierow najpierw.\n";
-                }
-                break;
-            }
-            case 9: {
-                std::cout << "Wyjscie z programu.\n";
-                return;
-            }
+            break;
+        }
+        case 9:
+        {
+            std::cout << "Wyjscie z programu.\n";
+            return;
+        }
         }
     }
 }
@@ -245,19 +272,50 @@ void classDraw::DisplayRoutes(std::vector<Paczka> &paczki, Magazyn &magazyn, std
         return;
     }
 
+    // // Wyświetlanie tras dla każdego kuriera
+    // for (size_t i = 0; i < routes.size(); ++i) {
+    //     std::cout << "\n--- Trasa kuriera " << (i + 1) << " ---\n";
+    //     double totalDistance = 0.0;
+    //     double prevX = magazyn.getX(), prevY = magazyn.getY();
+
+    //     for (const auto &paczka : routes[i]) {
+    //         double distance = calculateDistance(prevX, prevY, paczka.getX(), paczka.getY());
+    //         if (paczka.getId() == -1) {
+    //             std::cout << "Powrot do magazynu, Dystans: " << std::fixed << std::setprecision(2) << distance << "\n";
+    //         } else {
+    //             std::cout << "Dostawa ID: " << paczka.getId()
+    //                       << ", Dystans: " << std::fixed << std::setprecision(2) << distance << "\n";
+    //         }
+    //         totalDistance += distance;
+    //         prevX = paczka.getX();
+    //         prevY = paczka.getY();
+    //     }
+
+    //     totalDistance += calculateDistance(prevX, prevY, magazyn.getX(), magazyn.getY());
+    //     std::cout << "Calkowity Dystans: " << std::fixed << std::setprecision(2) << totalDistance << "\n";
+    // }
+
     // Wyświetlanie tras dla każdego kuriera
-    for (size_t i = 0; i < routes.size(); ++i) {
+    for (size_t i = 0; i < routes.size(); ++i)
+    {
         std::cout << "\n--- Trasa kuriera " << (i + 1) << " ---\n";
         double totalDistance = 0.0;
         double prevX = magazyn.getX(), prevY = magazyn.getY();
 
-        for (const auto &paczka : routes[i]) {
+        for (const auto &paczka : routes[i])
+        {
             double distance = calculateDistance(prevX, prevY, paczka.getX(), paczka.getY());
-            if (paczka.getId() == -1) {
+
+            if (paczka.getId() == -1)
+            {
                 std::cout << "Powrot do magazynu, Dystans: " << std::fixed << std::setprecision(2) << distance << "\n";
-            } else {
+            }
+            else
+            {
+                int dniDoWaznosci = paczka.getDniDoWaznosci();
                 std::cout << "Dostawa ID: " << paczka.getId()
-                          << ", Dystans: " << std::fixed << std::setprecision(2) << distance << "\n";
+                          << ", Dystans: " << std::fixed << std::setprecision(2) << distance
+                          << ", Dni do waznosci: " << dniDoWaznosci << "\n";
             }
             totalDistance += distance;
             prevX = paczka.getX();

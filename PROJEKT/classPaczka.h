@@ -32,6 +32,9 @@ public:
     void setDataWaznosci(const std::string& data_waznosci); // Setter do daty ważności
 
     void display() const;
+
+    int getDniDoWaznosci() const;
+
 };
 
 #endif // CLASSPACZKA_H

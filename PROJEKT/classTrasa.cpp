@@ -55,25 +55,33 @@ vector<Paczka> Trasa::rozwiazProblemPlecakowy(const vector<Paczka>& dostepnePacz
 }
 
 
+// Kryterium sortowania paczek według daty ważności
+void sortujPaczkiPoDacie(std::vector<Paczka>& paczki) {
+    std::sort(paczki.begin(), paczki.end(), [](const Paczka& a, const Paczka& b) {
+        int dniA = a.getDniDoWaznosci(); // Zakładamy, że metoda getDniDoWaznosci() zwraca liczbę dni do daty ważności
+        int dniB = b.getDniDoWaznosci();
+        if (dniA <= 2 && dniB > 2) return true;  // Priorytet dla paczek z datą < 2 dni
+        if (dniA <= 5 && dniB > 5) return true;  // Priorytet dla paczek z datą < 5 dni
+        if (dniA > 5 && dniB > 5) return false;  // Przy odległych datach decyduje odległość
+        return dniA < dniB;                      // Sortuj po liczbie dni rosnąco
+    });
+}
+
 std::vector<std::vector<Paczka>> Trasa::znajdzTraseAlgorytmZachlanny() {
     std::vector<std::vector<Paczka>> wynikoweTrasy(kurierzy.size());
     std::vector<Paczka> paczkiDoDostarczenia = paczki;
 
+    // Sortuj paczki po dacie ważności
+    sortujPaczkiPoDacie(paczkiDoDostarczenia);
+
     while (!paczkiDoDostarczenia.empty()) {
-
-        //cout << "Paczki do dostarczenia: " << paczkiDoDostarczenia.size() << endl;
-
         bool jakakolwiekDostawa = false;
-        cout << "Kurierzy: " << kurierzy.size() << endl;
 
         for (size_t i = 0; i < kurierzy.size(); ++i) {
-            cout<<"#" << i << endl;
             if (paczkiDoDostarczenia.empty()) break;
 
             // Rozwiąż problem plecakowy dla aktualnego kuriera
             std::vector<Paczka> aktualnaTrasa = rozwiazProblemPlecakowy(paczkiDoDostarczenia, kurierzy[i].getLadownosc());
-
-
 
             // Jeśli kurier nie może zabrać żadnej paczki, przejdź do następnego kuriera
             if (aktualnaTrasa.empty()) {
@@ -81,13 +89,13 @@ std::vector<std::vector<Paczka>> Trasa::znajdzTraseAlgorytmZachlanny() {
             }
 
             // Dodaj magazyn jako początek trasy
-            wynikoweTrasy[i].emplace_back(Paczka(-1, 0.0, magazyn->getX(), magazyn->getY()));
+            wynikoweTrasy[i].emplace_back(Paczka(-1, 0.0, magazyn->getX(), magazyn->getY(), "2099-12-31"));
 
             // Dodaj wybrane paczki do trasy
             wynikoweTrasy[i].insert(wynikoweTrasy[i].end(), aktualnaTrasa.begin(), aktualnaTrasa.end());
 
             // Dodaj magazyn jako koniec trasy
-            wynikoweTrasy[i].emplace_back(Paczka(-1, 0.0, magazyn->getX(), magazyn->getY()));
+            wynikoweTrasy[i].emplace_back(Paczka(-1, 0.0, magazyn->getX(), magazyn->getY(), "2099-12-31"));
 
             // Usuń dostarczone paczki z listy paczek do dostarczenia
             for (const auto& paczka : aktualnaTrasa) {
@@ -109,8 +117,6 @@ std::vector<std::vector<Paczka>> Trasa::znajdzTraseAlgorytmZachlanny() {
 
     return wynikoweTrasy;
 }
-
-
 
 
 
@@ -174,6 +180,8 @@ std::vector<std::vector<Paczka>> Trasa::znajdzTraseAlgorytmGenetyczny(int rozmia
     std::vector<std::vector<Paczka>> wynikoweTrasy(kurierzy.size());
     std::vector<Paczka> paczkiDoDostarczenia = paczki;
 
+    sortujPaczkiPoDacie(paczkiDoDostarczenia);
+
     while (!paczkiDoDostarczenia.empty()) {
         for (size_t i = 0; i < kurierzy.size(); ++i) {
             if (paczkiDoDostarczenia.empty()) break;
@@ -234,6 +242,10 @@ std::vector<std::vector<Paczka>> Trasa::znajdzTraseAlgorytmGenetyczny(int rozmia
 std::vector<std::vector<Paczka>> Trasa::znajdzTraseAlgorytmWyzarzania() {
     std::vector<std::vector<Paczka>> wynikoweTrasy(kurierzy.size());
     std::vector<Paczka> paczkiDoDostarczenia = paczki;
+
+
+    sortujPaczkiPoDacie(paczkiDoDostarczenia);
+
 
     while (!paczkiDoDostarczenia.empty()) {
         for (size_t i = 0; i < kurierzy.size(); ++i) {
