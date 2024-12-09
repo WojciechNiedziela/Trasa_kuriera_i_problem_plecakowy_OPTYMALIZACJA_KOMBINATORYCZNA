@@ -27,15 +27,16 @@ int main()
     Magazyn magazyn("Warszawa, ul. Przykladowa 1", magazynX, magazynY);
 
     // Inicjalizacja kuriera
-    Kurier kurier(1, 100.0);
+    //Kurier kurier(1, 100.0);
 
     // Kontener na paczki
     std::vector<Paczka> paczki;
+    std::vector<Kurier> kurierzy;
 
     // Inicjalizacja mapy
     Mapa mapa;
 
-    classDraw.MainWindow(paczki, magazyn, kurier, mapa);
+    classDraw.MainWindow(paczki, magazyn, kurierzy, mapa);
 
     return 0;
 }

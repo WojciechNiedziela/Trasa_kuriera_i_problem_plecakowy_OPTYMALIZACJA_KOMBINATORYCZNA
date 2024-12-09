@@ -29,7 +29,7 @@ public:
 
 
     // Główne okno aplikacji
-    void MainWindow(std::vector<Paczka> &paczki, Magazyn &magazyn, Kurier &kurier, Mapa &mapa);
+    void MainWindow(std::vector<Paczka> &paczki, Magazyn &magazyn, std::vector<Kurier> &kurierzy, Mapa &mapa);
 
     // Dodawanie paczki
     void AddPackage(std::vector<Paczka> &paczki);
@@ -38,7 +38,7 @@ public:
     void DisplayPackages(const std::vector<Paczka> &paczki);
 
     // Wyświetlanie tras dla różnych algorytmów
-    void DisplayRoutes(std::vector<Paczka> &paczki, Magazyn &magazyn, Kurier &kurier, Mapa &mapa, const std::string &algorithm);
+    void DisplayRoutes(std::vector<Paczka> &paczki, Magazyn &magazyn, std::vector<Kurier> &kurierzy, Mapa &mapa, const std::string &algorithm);
 
 private:
     // Metoda do obliczania dystansu między punktami

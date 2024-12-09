@@ -93,8 +93,13 @@ void classDraw::LoadPackagesFromFile(std::vector<Paczka> &paczki, const std::str
 }
 
 // Zaktualizowane menu
-void classDraw::MainWindow(std::vector<Paczka> &paczki, Magazyn &magazyn, Kurier &kurier, Mapa &mapa)
+void classDraw::MainWindow(std::vector<Paczka> &paczki, Magazyn &magazyn, std::vector<Kurier> &kurierzy, Mapa &mapa)
 {
+    std::vector<Kurier*> kurierzyPtr; // Tymczasowy wektor wskaźników
+    for (Kurier &kurier : kurierzy) {
+        kurierzyPtr.push_back(&kurier); // Dodaj wskaźnik do każdego kuriera
+    }
+
     classHandlingEvents classHandlingEvents;
     double magazynX = 0.0, magazynY = 0.0;
 
@@ -146,7 +151,7 @@ void classDraw::MainWindow(std::vector<Paczka> &paczki, Magazyn &magazyn, Kurier
             }
             case 6: {
                 if (!kurierzy.empty()) {
-                    DisplayRoutes(paczki, magazyn, kurierzy[0], mapa, "genetyczny");
+                    DisplayRoutes(paczki, magazyn, kurierzy, mapa, "genetyczny");
                 } else {
                     std::cout << "Brak zarejestrowanych kurierow. Ustaw kurierow najpierw.\n";
                 }
@@ -154,7 +159,7 @@ void classDraw::MainWindow(std::vector<Paczka> &paczki, Magazyn &magazyn, Kurier
             }
             case 7: {
                 if (!kurierzy.empty()) {
-                    DisplayRoutes(paczki, magazyn, kurierzy[0], mapa, "zachlanny");
+                    DisplayRoutes(paczki, magazyn, kurierzy, mapa, "zachlanny");
                 } else {
                     std::cout << "Brak zarejestrowanych kurierow. Ustaw kurierow najpierw.\n";
                 }
@@ -162,7 +167,7 @@ void classDraw::MainWindow(std::vector<Paczka> &paczki, Magazyn &magazyn, Kurier
             }
             case 8: {
                 if (!kurierzy.empty()) {
-                    DisplayRoutes(paczki, magazyn, kurierzy[0], mapa, "wyzarzanie");
+                    DisplayRoutes(paczki, magazyn, kurierzy, mapa, "wyzarzanie");
                 } else {
                     std::cout << "Brak zarejestrowanych kurierow. Ustaw kurierow najpierw.\n";
                 }
@@ -222,7 +227,7 @@ void classDraw::DisplayPackages(const std::vector<Paczka> &paczki)
     }
 }
 
-void classDraw::DisplayRoutes(std::vector<Paczka> &paczki, Magazyn &magazyn, Kurier &kurier, Mapa &mapa, const std::string &algorithm)
+void classDraw::DisplayRoutes(std::vector<Paczka> &paczki, Magazyn &magazyn, std::vector<Kurier> &kurierzy, Mapa &mapa, const std::string &algorithm)
 {
     if (paczki.empty())
     {
@@ -230,20 +235,20 @@ void classDraw::DisplayRoutes(std::vector<Paczka> &paczki, Magazyn &magazyn, Kur
         return;
     }
 
-    Trasa trasa(&kurier, &magazyn, paczki, &mapa);
-    std::vector<Paczka> route;
+    Trasa trasa(kurierzy, &magazyn, paczki, &mapa);
+    std::vector<std::vector<Paczka>> routes;
 
     if (algorithm == "genetyczny")
     {
-        route = trasa.znajdzTraseAlgorytmGenetyczny();
+        routes = trasa.znajdzTraseAlgorytmGenetyczny();
     }
     else if (algorithm == "zachlanny")
     {
-        route = trasa.znajdzTraseAlgorytmZachlanny();
+        routes = trasa.znajdzTraseAlgorytmZachlanny();
     }
     else if (algorithm == "wyzarzanie")
     {
-        route = trasa.znajdzTraseAlgorytmWyzarzania();
+        routes = trasa.znajdzTraseAlgorytmWyzarzania();
     }
     else
     {
@@ -251,34 +256,28 @@ void classDraw::DisplayRoutes(std::vector<Paczka> &paczki, Magazyn &magazyn, Kur
         return;
     }
 
-    std::cout << "\n--- Trasa Wyznaczona (" << algorithm << ") ---\n";
-    double totalDistance = 0.0;
-    double prevX = magazyn.getX(), prevY = magazyn.getY();
+    // Wyświetlanie tras dla każdego kuriera
+    for (size_t i = 0; i < routes.size(); ++i) {
+        std::cout << "\n--- Trasa kuriera " << (i + 1) << " ---\n";
+        double totalDistance = 0.0;
+        double prevX = magazyn.getX(), prevY = magazyn.getY();
 
-    for (const auto &paczka : route)
-    {
-        double distance = calculateDistance(prevX, prevY, paczka.getX(), paczka.getY());
-        if (paczka.getId() == -1)
-        {
-            if (distance != 0.0)
-            {
+        for (const auto &paczka : routes[i]) {
+            double distance = calculateDistance(prevX, prevY, paczka.getX(), paczka.getY());
+            if (paczka.getId() == -1) {
                 std::cout << "Powrot do magazynu, Dystans: " << std::fixed << std::setprecision(2) << distance << "\n";
+            } else {
+                std::cout << "Dostawa ID: " << paczka.getId()
+                          << ", Dystans: " << std::fixed << std::setprecision(2) << distance << "\n";
             }
-            
-        }
-        else
-        {
-            std::cout << "Dostawa ID: " << paczka.getId()
-                      << ", Dystans: " << std::fixed << std::setprecision(2) << distance << "\n";
+            totalDistance += distance;
+            prevX = paczka.getX();
+            prevY = paczka.getY();
         }
 
-        totalDistance += distance;
-        prevX = paczka.getX();
-        prevY = paczka.getY();
+        totalDistance += calculateDistance(prevX, prevY, magazyn.getX(), magazyn.getY());
+        std::cout << "Calkowity Dystans: " << std::fixed << std::setprecision(2) << totalDistance << "\n";
     }
-
-    totalDistance += calculateDistance(prevX, prevY, magazyn.getX(), magazyn.getY());
-    std::cout << "Calkowity Dystans: " << std::fixed << std::setprecision(2) << totalDistance << "\n";
 }
 
 double classDraw::calculateDistance(double x1, double y1, double x2, double y2)

@@ -103,41 +103,50 @@ void classHandlingEvents::displayPackages(const std::vector<Paczka> &paczki) {
     }
 }
 
-void classHandlingEvents::displayRoutes(std::vector<Paczka> &paczki, Magazyn &magazyn, Kurier &kurier, Mapa &mapa,
-                                        std::vector<std::string> &routes, const std::string &algorithm) {
+void classHandlingEvents::displayRoutes(std::vector<Paczka> &paczki, Magazyn &magazyn, Kurier &kurier, Mapa &mapa, std::vector<std::string> &availableAlgorithms, const std::string &algorithm) {
     if (paczki.empty()) {
         std::cout << "Brak paczek do dostarczenia.\n";
         return;
     }
 
-    Trasa trasa(&kurier, &magazyn, paczki, &mapa);
-    std::vector<Paczka> route;
+    std::vector<Kurier> kurierzy;// = {&kurier};
+    Trasa trasa(kurierzy, &magazyn, paczki, &mapa);
+    std::vector<std::vector<Paczka>> routes;
 
     if (algorithm == "genetyczny") {
-        route = trasa.znajdzTraseAlgorytmGenetyczny();
+        routes = trasa.znajdzTraseAlgorytmGenetyczny();
     } else if (algorithm == "zachlanny") {
-        route = trasa.znajdzTraseAlgorytmZachlanny();
+        routes = trasa.znajdzTraseAlgorytmZachlanny();
     } else if (algorithm == "wyzarzanie") {
-        route = trasa.znajdzTraseAlgorytmWyzarzania();
+        routes = trasa.znajdzTraseAlgorytmWyzarzania();
     } else {
         std::cout << "Nieznany algorytm: " << algorithm << "\n";
         return;
     }
 
-    std::cout << "\n--- Trasa Wyznaczona (" << algorithm << ") ---\n";
-    double totalDistance = 0.0;
-    double prevX = magazyn.getX(), prevY = magazyn.getY();
+    // Wyświetl trasy dla każdego kuriera
+    for (size_t i = 0; i < routes.size(); ++i) {
+        std::cout << "\n--- Trasa kuriera " << (i + 1) << " ---\n";
+        double totalDistance = 0.0;
+        double prevX = magazyn.getX(), prevY = magazyn.getY();
 
-    for (const auto &paczka : route) {
-        double distance = calculateDistance(prevX, prevY, paczka.getX(), paczka.getY());
-        std::cout << "Dostawa ID: " << paczka.getId()
-                  //<< ", Adres: " << paczka.getAdres()
-                  << ", Dystans: " << std::fixed << std::setprecision(2) << distance << "\n";
-        totalDistance += distance;
-        prevX = paczka.getX();
-        prevY = paczka.getY();
+        for (const auto &paczka : routes[i]) {
+            double distance = mapa.odleglosc(prevX, prevY, paczka.getX(), paczka.getY());
+            if (paczka.getId() == -1) {
+                if (distance != 0.0) {
+                    std::cout << "Powrot do magazynu, Dystans: " << std::fixed << std::setprecision(2) << distance << "\n";
+                }
+            } else {
+                std::cout << "Dostawa ID: " << paczka.getId()
+                          << ", Dystans: " << std::fixed << std::setprecision(2) << distance << "\n";
+            }
+
+            totalDistance += distance;
+            prevX = paczka.getX();
+            prevY = paczka.getY();
+        }
+
+        totalDistance += mapa.odleglosc(prevX, prevY, magazyn.getX(), magazyn.getY());
+        std::cout << "Calkowity Dystans: " << std::fixed << std::setprecision(2) << totalDistance << "\n";
     }
-
-    totalDistance += calculateDistance(prevX, prevY, magazyn.getX(), magazyn.getY());
-    std::cout << "Powrot do magazynu, Dystans: " << std::fixed << std::setprecision(2) << totalDistance << "\n";
 }

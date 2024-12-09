@@ -13,6 +13,8 @@ private:
     Magazyn* magazyn;
     std::vector<Paczka> paczki;
     Mapa* mapa;
+    std::vector<Kurier> kurierzy; // Lista kurierów
+
 
     // Funkcja pomocnicza: rozwiązywanie problemu plecakowego
     std::vector<Paczka> rozwiazProblemPlecakowy(const std::vector<Paczka>& dostepnePaczki, double ladownosc);
@@ -26,7 +28,7 @@ private:
 
 public:
     // Konstruktor
-    Trasa(Kurier* kurier, Magazyn* magazyn, const std::vector<Paczka>& paczki, Mapa* mapa);
+    Trasa(std::vector<Kurier> kurierzy, Magazyn* magazyn, const std::vector<Paczka>& paczki, Mapa* mapa);
 
     // Funkcja dodawania paczki do trasy
     void dodajPaczke(const Paczka& paczka);
@@ -34,10 +36,15 @@ public:
     // Funkcja wyświetlająca szczegóły trasy
     void displayTrasa() const;
 
-    // Algorytmy optymalizacyjne
-    std::vector<Paczka> znajdzTraseAlgorytmZachlanny(); // Algorytm zachłanny z podziałem tras
-    std::vector<Paczka> znajdzTraseAlgorytmGenetyczny(int rozmiarPopulacji = 50, int liczbaPokolen = 100); // Algorytm genetyczny
-    std::vector<Paczka> znajdzTraseAlgorytmWyzarzania(); // Algorytm wyżarzania
+    // // Algorytmy optymalizacyjne
+    // std::vector<Paczka> znajdzTraseAlgorytmZachlanny(); // Algorytm zachłanny z podziałem tras
+    // std::vector<Paczka> znajdzTraseAlgorytmGenetyczny(int rozmiarPopulacji = 50, int liczbaPokolen = 100); // Algorytm genetyczny
+    // std::vector<Paczka> znajdzTraseAlgorytmWyzarzania(); // Algorytm wyżarzania
+
+      std::vector<std::vector<Paczka>> znajdzTraseAlgorytmZachlanny(); // Algorytm zachłanny
+    std::vector<std::vector<Paczka>> znajdzTraseAlgorytmGenetyczny(int rozmiarPopulacji = 50, int liczbaPokolen = 100); // Algorytm genetyczny
+    std::vector<std::vector<Paczka>> znajdzTraseAlgorytmWyzarzania(); // Algorytm wyżarzania
+
 
     // Funkcja do wyświetlania tras
     void displayTrasy(const std::vector<std::vector<Paczka>>& trasy);
