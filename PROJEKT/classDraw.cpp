@@ -12,8 +12,58 @@
 #include <cmath>
 #include "classHandlingEvents.h"
 #include <fstream>
+#include <regex>
 
 classDraw::classDraw() {}
+
+bool classDraw::walidujDate(const std::string &data)
+{
+    // Wyrażenie regularne sprawdzające format YYYY-MM-DD
+    const std::regex wzorzec("^\\d{4}-\\d{2}-\\d{2}$");
+
+    // Sprawdź, czy format się zgadza
+    if (!std::regex_match(data, wzorzec))
+    {
+        return false;
+    }
+
+    // Rozdziel na rok, miesiąc, dzień
+    int rok, miesiac, dzien;
+    if (sscanf(data.c_str(), "%4d-%2d-%2d", &rok, &miesiac, &dzien) != 3)
+    {
+        return false;
+    }
+
+    // Sprawdź poprawność daty
+    if (miesiac < 1 || miesiac > 12 || dzien < 1)
+    {
+        return false;
+    }
+
+    // Liczba dni w każdym miesiącu (rok nieprzestępny)
+    const int dniWMiesiacach[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+    // Sprawdź, czy rok jest przestępny
+    bool przestepny = (rok % 4 == 0 && rok % 100 != 0) || (rok % 400 == 0);
+
+    // Liczba dni w lutym w roku przestępnym
+    if (miesiac == 2 && przestepny)
+    {
+        if (dzien > 29)
+        {
+            return false;
+        }
+    }
+    else
+    {
+        if (dzien > dniWMiesiacach[miesiac - 1])
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 // Funkcja do ustawienia liczby kurierów
 void classDraw::SetCouriers(std::vector<Kurier> &kurierzy)
@@ -28,14 +78,38 @@ void classDraw::SetCouriers(std::vector<Kurier> &kurierzy)
         return;
     }
 
-    kurierzy.clear(); // Wyczyść listę kurierów
+    // kurierzy.clear(); // Wyczyść listę kurierów
     for (int i = 1; i <= liczbaKurierow; ++i)
     {
         int id;
         double ladownosc;
 
-        std::cout << "Podaj id kuriera " << i << ": ";
-        std::cin >> id;
+        while (true)
+        {
+            std::cout << "Podaj id kuriera " << i << ": ";
+            std::cin >> id;
+
+            // Sprawdź, czy ID jest unikalne
+            bool istnieje = false;
+            for (const auto &kurier : kurierzy)
+            {
+                if (kurier.getId() == id) // Zakładamy, że `Kurier` ma metodę `getId()`
+                {
+                    istnieje = true;
+                    break;
+                }
+            }
+
+            if (istnieje)
+            {
+                std::cout << "Kurier z podanym ID juz istnieje. Wprowadz inne ID.\n";
+            }
+            else
+            {
+                break; // ID jest unikalne
+            }
+        }
+
         std::cout << "Podaj ladownosc kuriera " << i << ": ";
         std::cin >> ladownosc;
 
@@ -201,16 +275,52 @@ void classDraw::AddPackage(std::vector<Paczka> &paczki)
     std::string adres, data_waznosci;
     double waga, x, y;
 
-    std::cout << "Podaj ID paczki: ";
-    std::cin >> id;
+    while (true)
+    {
+        std::cout << "Podaj ID paczki: ";
+        std::cin >> id;
+
+        // Sprawdź, czy ID jest unikalne
+        bool istnieje = false;
+        for (const auto &paczka : paczki)
+        {
+            if (paczka.getId() == id)
+            {
+                istnieje = true;
+                break;
+            }
+        }
+
+        if (istnieje)
+        {
+            std::cout << "Paczka z podanym ID juz istnieje. Wprowadz inne ID.\n";
+        }
+        else
+        {
+            break; // ID jest unikalne
+        }
+    }
 
     std::cout << "Podaj wage paczki (kg): ";
     std::cin >> waga;
     std::cout << "Podaj wspolrzedne paczki (X Y): ";
     std::cin >> x >> y;
 
-    std::cout << "Podaj date waznosci w formacie YYYY-MM-DD: ";
-    std::cin >> data_waznosci;
+    while (true)
+    {
+        std::cout << "Podaj date waznosci w formacie YYYY-MM-DD: ";
+        std::cin >> data_waznosci;
+
+        if (walidujDate(data_waznosci))
+        {
+            std::cout << "Poprawna data: " << data_waznosci << std::endl;
+            break;
+        }
+        else
+        {
+            std::cout << "Niepoprawna data. Podaj ponownie.\n";
+        }
+    }
 
     if (!std::cin.fail())
     {

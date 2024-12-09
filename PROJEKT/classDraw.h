@@ -16,6 +16,8 @@ public:
     // Konstruktor
     classDraw();
 
+    bool walidujDate(const std::string& data);
+
     // Metoda do wprowadzania współrzędnych magazynu
     //void MagazynInput(double &magazynX, double &magazynY);
 
