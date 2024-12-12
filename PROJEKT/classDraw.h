@@ -39,6 +39,11 @@ public:
     // Wyświetlanie listy paczek
     void DisplayPackages(const std::vector<Paczka> &paczki);
 
+
+    double obliczDlugoscTrasy(const std::vector<Paczka>& trasa, const Magazyn& magazyn);
+
+    double obliczCalkowitaDlugoscTras(const std::vector<std::vector<Paczka>>& wynikoweTrasy, const Magazyn& magazyn);
+
     // Wyświetlanie tras dla różnych algorytmów
     void DisplayRoutes(std::vector<Paczka> &paczki, Magazyn &magazyn, std::vector<Kurier> &kurierzy, Mapa &mapa, const std::string &algorithm);
 

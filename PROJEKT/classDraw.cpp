@@ -13,8 +13,62 @@
 #include "classHandlingEvents.h"
 #include <fstream>
 #include <regex>
+#include <filesystem>
 
 classDraw::classDraw() {}
+
+// Funkcja pomocnicza do obliczania odległości między dwoma punktami
+static double calculateDistance(double x1, double y1, double x2, double y2)
+{
+    return std::sqrt(std::pow(x2 - x1, 2) + std::pow(y2 - y1, 2));
+}
+
+// Metoda obliczająca łączną długość trasy
+// "trasa" to wektor paczek w kolejności dostawy
+// "magazyn" to punkt początkowy i końcowy
+// "mapa" (jeśli potrzeba) może być używana do bardziej złożonych obliczeń
+
+double classDraw::obliczDlugoscTrasy(const std::vector<Paczka> &trasa, const Magazyn &magazyn)
+{
+    double totalDistance = 0.0;
+
+    // Wspórzędne początkowe: magazyn
+    double prevX = magazyn.getX();
+    double prevY = magazyn.getY();
+
+    // Iteruj przez paczki w trasie
+    for (const auto &paczka : trasa)
+    {
+        double currentX = paczka.getX();
+        double currentY = paczka.getY();
+
+        // Dodaj odległość od poprzedniego punktu do obecnego
+        totalDistance += calculateDistance(prevX, prevY, currentX, currentY);
+
+        // Ustaw obecne wspórzędne jako poprzednie
+        prevX = currentX;
+        prevY = currentY;
+    }
+
+    // Powrót do magazynu
+    totalDistance += calculateDistance(prevX, prevY, magazyn.getX(), magazyn.getY());
+
+    return totalDistance;
+}
+
+double classDraw::obliczCalkowitaDlugoscTras(const std::vector<std::vector<Paczka>> &wynikoweTrasy, const Magazyn &magazyn)
+{
+    double calkowitaDlugosc = 0.0;
+
+    for (const auto &trasa : wynikoweTrasy)
+    {
+        double dlugoscTrasy = obliczDlugoscTrasy(trasa, magazyn);
+        std::cout << "Długość trasy: " << dlugoscTrasy << std::endl; // Wyświetl długość trasy
+        calkowitaDlugosc += dlugoscTrasy;
+    }
+
+    return calkowitaDlugosc;
+}
 
 bool classDraw::walidujDate(const std::string &data)
 {
@@ -185,10 +239,12 @@ void classDraw::MainWindow(std::vector<Paczka> &paczki, Magazyn &magazyn, std::v
         std::cout << "7. Wyznacz trasy (algorytm zachlanny)\n";
         std::cout << "8. Wyznacz trasy (wyzarzanie)\n";
         std::cout << "9. Wyjdz\n";
+        std::cout << "10. TESTY\n";
+        std::cout << "11. TESTY CZAS\n";
         std::cout << "Wybierz opcje: ";
         std::cin >> choice;
 
-        if (std::cin.fail() || choice < 1 || choice > 9)
+        if (std::cin.fail() || choice < 1 || choice > 11)
         {
             std::cout << "Blad: podaj poprawny numer opcji.\n";
             std::cin.clear();
@@ -264,6 +320,232 @@ void classDraw::MainWindow(std::vector<Paczka> &paczki, Magazyn &magazyn, std::v
         {
             std::cout << "Wyjscie z programu.\n";
             return;
+        }
+        case 10:
+        {
+            // Wybór algorytmu
+            int algorytmWybor;
+            std::cout << "Wybierz algorytm:\n";
+            std::cout << "1. Algorytm Zachłanny (GRE)\n";
+            std::cout << "2. Algorytm Genetyczny (GEN)\n";
+            std::cout << "3. Algorytm Wyżarzania (SA)\n";
+            std::cout << "Wybór: ";
+            std::cin >> algorytmWybor;
+
+            if (algorytmWybor < 1 || algorytmWybor > 3)
+            {
+                std::cout << "Nieprawidłowy wybór algorytmu.\n";
+                break;
+            }
+
+            // Wczytaj kurierów z pliku
+            std::vector<Kurier> kurierzy;
+            std::ifstream fileKurierzy("kurierzy.txt");
+            if (!fileKurierzy)
+            {
+                std::cerr << "Nie można otworzyć pliku kurierzy.txt.\n";
+                break;
+            }
+
+            int liczbaKurierow;
+            fileKurierzy >> liczbaKurierow;
+            for (int i = 0; i < liczbaKurierow; ++i)
+            {
+                int id;
+                double ladownosc;
+                fileKurierzy >> id >> ladownosc;
+                kurierzy.emplace_back(id, ladownosc);
+            }
+            fileKurierzy.close();
+
+            // Otwórz folder data i przetwórz pliki
+            std::string folder = "data/";
+            std::string algorytmNazwa = (algorytmWybor == 1) ? "GRE" : (algorytmWybor == 2) ? "GEN"
+                                                                                            : "SA";
+            std::ofstream results("results_" + algorytmNazwa + ".txt");
+            if (!results)
+            {
+                std::cerr << "Nie można utworzyć pliku wynikowego.\n";
+                break;
+            }
+
+            for (const auto &entry : std::filesystem::directory_iterator(folder))
+            {
+                if (!entry.is_regular_file())
+                    continue;
+
+                std::string fileName = entry.path().string();
+                std::vector<Paczka> paczki;
+
+                // Wczytaj paczki z pliku
+                std::ifstream filePaczki(fileName);
+                if (!filePaczki)
+                {
+                    std::cerr << "Nie można otworzyć pliku: " << fileName << "\n";
+                    continue;
+                }
+
+                int id;
+                double waga, x, y;
+                std::string data;
+                while (filePaczki >> id >> waga >> x >> y >> data)
+                {
+                    paczki.emplace_back(id, waga, x, y, data);
+                }
+                filePaczki.close();
+
+                // Ustaw magazyn (przykładowo na (0, 0))
+                // Magazyn magazyn(0.0, 0.0);
+                Mapa mapa;
+
+                // Uruchom odpowiedni algorytm
+                Trasa trasa(kurierzy, &magazyn, paczki, &mapa);
+                std::vector<std::vector<Paczka>> wynikoweTrasy;
+                if (algorytmWybor == 1)
+                {
+                    wynikoweTrasy = trasa.znajdzTraseAlgorytmZachlanny();
+                }
+                else if (algorytmWybor == 2)
+                {
+                    wynikoweTrasy = trasa.znajdzTraseAlgorytmGenetyczny(100, 50); // Rozmiar populacji i liczba pokoleń
+                }
+                else if (algorytmWybor == 3)
+                {
+                    wynikoweTrasy = trasa.znajdzTraseAlgorytmWyzarzania();
+                }
+
+                // // Oblicz całkowitą długość trasy
+                // double totalDistance = 0.0;
+
+                // for (const auto &trasa : wynikoweTrasy)
+                // {
+                //     //Trasa trasaObj(magazyn, mapa); // Utwórz instancję klasy Trasa (lub odpowiedni konstruktor)
+                //     //totalDistance += trasaObj.obliczDlugoscTrasy(trasa); // Wywołaj metodę na obiekcie trasaObj
+
+                //     //totalDistance += trasa.obliczDlugoscTrasy(trasa);
+                //     totalDistance += obliczDlugoscTrasy(trasa);
+                // }
+
+                double totalDistance = obliczCalkowitaDlugoscTras(wynikoweTrasy, magazyn);
+
+                // Zapisz wynik do pliku
+                results << "Plik: " << fileName << ", Długość trasy: " << std::fixed << std::setprecision(2) << totalDistance << "\n";
+            }
+
+            results.close();
+            std::cout << "Wyniki zapisano do pliku: results_" << algorytmNazwa << ".txt\n";
+
+            break;
+        }
+        case 11:
+        {
+            // Wybór algorytmu
+            int algorytmWybor;
+            std::cout << "Wybierz algorytm:\n";
+            std::cout << "1. Algorytm Zachłanny (GRE)\n";
+            std::cout << "2. Algorytm Genetyczny (GEN)\n";
+            std::cout << "3. Algorytm Wyżarzania (SA)\n";
+            std::cout << "Wybór: ";
+            std::cin >> algorytmWybor;
+
+            if (algorytmWybor < 1 || algorytmWybor > 3)
+            {
+                std::cout << "Nieprawidłowy wybór algorytmu.\n";
+                break;
+            }
+
+            // Wczytaj kurierów z pliku
+            std::vector<Kurier> kurierzy;
+            std::ifstream fileKurierzy("kurierzy.txt");
+            if (!fileKurierzy)
+            {
+                std::cerr << "Nie można otworzyć pliku kurierzy.txt.\n";
+                break;
+            }
+
+            int liczbaKurierow;
+            fileKurierzy >> liczbaKurierow;
+            for (int i = 0; i < liczbaKurierow; ++i)
+            {
+                int id;
+                double ladownosc;
+                fileKurierzy >> id >> ladownosc;
+                kurierzy.emplace_back(id, ladownosc);
+            }
+            fileKurierzy.close();
+
+            // Otwórz folder data i przetwórz pliki
+            std::string folder = "data/";
+            std::string algorytmNazwa = (algorytmWybor == 1) ? "GRE" : (algorytmWybor == 2) ? "GEN"
+                                                                                            : "SA";
+            std::ofstream results("results_time_" + algorytmNazwa + ".txt");
+            if (!results)
+            {
+                std::cerr << "Nie można utworzyć pliku wynikowego.\n";
+                break;
+            }
+
+            for (const auto &entry : std::filesystem::directory_iterator(folder))
+            {
+                if (!entry.is_regular_file())
+                    continue;
+
+                std::string fileName = entry.path().string();
+                std::vector<Paczka> paczki;
+
+                // Wczytaj paczki z pliku
+                std::ifstream filePaczki(fileName);
+                if (!filePaczki)
+                {
+                    std::cerr << "Nie można otworzyć pliku: " << fileName << "\n";
+                    continue;
+                }
+
+                int id;
+                double waga, x, y;
+                std::string data;
+                while (filePaczki >> id >> waga >> x >> y >> data)
+                {
+                    paczki.emplace_back(id, waga, x, y, data);
+                }
+                filePaczki.close();
+
+                // Ustaw magazyn (przykładowo na (0, 0))
+                Mapa mapa;
+
+                Trasa trasa(kurierzy, &magazyn, paczki, &mapa);
+                std::vector<std::vector<Paczka>> wynikoweTrasy;
+
+                // Pomiar czasu algorytmu
+                auto start = std::chrono::high_resolution_clock::now();
+
+                if (algorytmWybor == 1)
+                {
+                    wynikoweTrasy = trasa.znajdzTraseAlgorytmZachlanny();
+                }
+                else if (algorytmWybor == 2)
+                {
+                    wynikoweTrasy = trasa.znajdzTraseAlgorytmGenetyczny(100, 50); // Rozmiar populacji i liczba pokoleń
+                }
+                else if (algorytmWybor == 3)
+                {
+                    wynikoweTrasy = trasa.znajdzTraseAlgorytmWyzarzania();
+                }
+
+                auto end = std::chrono::high_resolution_clock::now();
+                auto czasWykonania = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+                // Zapisz wynik do pliku
+                results << "Plik: " << fileName
+                        << ", Czas wykonania: " << czasWykonania << " ms\n";
+
+                std::cout << "Przetworzono plik: " << fileName << ", czas: " << czasWykonania << " ms\n";
+            }
+
+            results.close();
+            std::cout << "Wyniki czasowe zapisano do pliku: results_time_" << algorytmNazwa << ".txt\n";
+
+            break;
         }
         }
     }
